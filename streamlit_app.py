@@ -66,7 +66,7 @@ else:
     # 結果をセンタリングして表示
     centered_result = f"""
     <div style="display: flex; justify-content: center; align-items: center; height: 50px;">
-        <p style="font-size: 18px; font-weight: bold;">
+        <p style="font-size: 20px; font-weight: bold;">
             {decimal_input}を{n_base}進数に変換すると: {result}
         </p>
     </div>
