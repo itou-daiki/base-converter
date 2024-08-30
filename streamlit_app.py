@@ -1,5 +1,4 @@
 import streamlit as st
-import pandas as pd
 import math
 
 st.set_page_config(page_title="進数変換アプリ", layout="wide")
@@ -30,15 +29,16 @@ else:
     
     st.subheader("位取り記数法の表")
     
-    # 数式をTeXで表示し、行と列を入れ替えた表を作成
-    df = pd.DataFrame({
-        f"${n_base}^{{{i}}}$": [n_base ** i, digits[max_power - i]] for i in range(max_power, -1, -1)
-    }, index=['値', '桁'])
-    
-    st.dataframe(df.style.format({"値": "{:,d}"}), use_container_width=True)
+    # st.tableを使用して表を作成
+    table_data = [
+        [f"${n_base}^{{{i}}}$" for i in range(max_power, -1, -1)],
+        [n_base ** i for i in range(max_power, -1, -1)],
+        digits
+    ]
+    st.table(table_data)
 
     st.subheader("計算式")
-    terms = [f"{digits[i]} \\times {n_base}^{{{max_power-i}}}" for i in range(len(digits)) if digits[i] != 0]
+    terms = [f"{n_base}^{{{max_power-i}}} \\times {digits[i]}" for i in range(len(digits)) if digits[i] != 0]
     equation = f"{decimal_input} = {' + '.join(terms)}"
     st.latex(equation)
 
