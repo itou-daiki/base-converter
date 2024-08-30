@@ -3,9 +3,14 @@ import math
 
 st.set_page_config(page_title="進数変換アプリ", layout="wide")
 
+# MathJaxのスクリプトを追加
+st.markdown("""
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+""", unsafe_allow_html=True)
+
 st.title("進数変換アプリ")
 
-decimal_input = st.number_input("10進数の数値を入力してください", min_value=0, value=10, step=1)
+decimal_input = st.number_input("10進数の数値を入力してください", min_value=0, value=44, step=1)
 base_options = ["2進数", "8進数", "16進数", "n進数"]
 selected_base = st.selectbox("変換する進数を選択してください", base_options)
 
@@ -29,12 +34,12 @@ else:
     
     st.subheader("位取り記数法の表")
     
-    # カスタムHTMLを使用してテーブルを作成
+    # カスタムHTMLを使用してテーブルを作成（MathJaxを使用）
     html_table = f"""
     <table style="width:100%; text-align:center;">
         <tr>
             <th></th>
-            {"".join([f"<th>${n_base}^{{{i}}}</th>" for i in range(max_power, -1, -1)])}
+            {"".join([f'<th>$${n_base}^{{{i}}}$$</th>' for i in range(max_power, -1, -1)])}
         </tr>
         <tr>
             <td><strong>値</strong></td>
@@ -66,8 +71,8 @@ else:
     # 結果をセンタリングして表示
     centered_result = f"""
     <div style="display: flex; justify-content: center; align-items: center; height: 50px;">
-        <p style="font-size: 20px; font-weight: bold;">
-            10進数の{decimal_input}を{n_base}進数に変換すると　:　 {result}
+        <p style="font-size: 18px; font-weight: bold;">
+            {decimal_input}を{n_base}進数に変換すると: {result}
         </p>
     </div>
     """
