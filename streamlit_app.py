@@ -63,7 +63,15 @@ else:
             return chr(ord('A') + num - 10)
         result = "".join(to_base_n(d) for d in digits)
     
-    st.write(f"{decimal_input}を{n_base}進数に変換すると: {result}")
+    # 結果をセンタリングして表示
+    centered_result = f"""
+    <div style="display: flex; justify-content: center; align-items: center; height: 50px;">
+        <p style="font-size: 18px; font-weight: bold;">
+            {decimal_input}を{n_base}進数に変換すると: {result}
+        </p>
+    </div>
+    """
+    st.markdown(centered_result, unsafe_allow_html=True)
 
 st.markdown("""
 ## 使い方
