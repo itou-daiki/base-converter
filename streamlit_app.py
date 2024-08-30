@@ -3,11 +3,6 @@ import math
 
 st.set_page_config(page_title="進数変換アプリ", layout="wide")
 
-# MathJaxのスクリプトを追加
-st.markdown("""
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
-""", unsafe_allow_html=True)
-
 st.title("進数変換アプリ")
 
 decimal_input = st.number_input("10進数の数値を入力してください", min_value=0, value=44, step=1)
@@ -34,29 +29,19 @@ else:
     
     st.subheader("位取り記数法の表")
     
-    # カスタムHTMLを使用してテーブルを作成（MathJaxを使用）
-    html_table = f"""
-    <table style="width:100%; text-align:center;">
-        <tr>
-            <th></th>
-            {"".join([f'<th>$${n_base}^{{{i}}}$$</th>' for i in range(max_power, -1, -1)])}
-        </tr>
-        <tr>
-            <td><strong>値</strong></td>
-            {"".join([f"<td>{n_base ** i}</td>" for i in range(max_power, -1, -1)])}
-        </tr>
-        <tr>
-            <td><strong>桁</strong></td>
-            {"".join([f"<td>{d}</td>" for d in digits])}
-        </tr>
-    </table>
-    """
-    st.markdown(html_table, unsafe_allow_html=True)
+    # Markdownテーブルを作成
+    markdown_table = f"""
+| | {" | ".join([f"$${n_base}^{{{i}}}$$" for i in range(max_power, -1, -1)])} |
+|---|{"|---" * (max_power + 1)}|
+| 値 | {" | ".join([str(n_base ** i) for i in range(max_power, -1, -1)])} |
+| 桁 | {" | ".join(map(str, digits))} |
+"""
+    st.markdown(markdown_table)
 
     st.subheader("計算式")
     terms = [f"{n_base}^{{{max_power-i}}} \\times {digits[i]}" for i in range(len(digits)) if digits[i] != 0]
-    equation = f"{decimal_input} = {' + '.join(terms)}"
-    st.latex(equation)
+    equation = f"$${decimal_input} = {' + '.join(terms)}$$"
+    st.markdown(equation)
 
     st.subheader("結果")
     if n_base <= 10:
@@ -70,12 +55,12 @@ else:
     
     # 結果をセンタリングして表示
     centered_result = f"""
-    <div style="display: flex; justify-content: center; align-items: center; height: 50px;">
-        <p style="font-size: 18px; font-weight: bold;">
-            {decimal_input}を{n_base}進数に変換すると: {result}
-        </p>
-    </div>
-    """
+<div style="display: flex; justify-content: center; align-items: center; height: 50px;">
+    <p style="font-size: 18px; font-weight: bold;">
+        {decimal_input}を{n_base}進数に変換すると: {result}
+    </p>
+</div>
+"""
     st.markdown(centered_result, unsafe_allow_html=True)
 
 st.markdown("""
