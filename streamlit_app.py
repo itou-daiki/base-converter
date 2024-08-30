@@ -1,9 +1,15 @@
 import streamlit as st
 import math
 
-st.set_page_config(page_title="進数変換アプリ", layout="wide")
+st.set_page_config(page_title="進数変換学習アプリ")
 
-st.title("進数変換アプリ")
+st.title("進数変換学習アプリ")
+st.caption("Created by Dit-Lab.(Daiki Ito)")
+
+# Introduction
+st.markdown("""
+## **概要**
+このウェブアプリケーションは、10進数からn進数の変換の学習を補助します。""")
 
 decimal_input = st.number_input("10進数の数値を入力してください", min_value=0, value=62, step=1)
 base_options = ["2進数", "8進数", "16進数", "n進数"]
@@ -53,7 +59,7 @@ else:
             st.write(f"4. 10進数を16進数に変換: {' '.join(result)}")
         
         if selected_base == "16進数":
-            st.subheader("16進数変換表")
+            st.text("参考：16進数変換表")
             hex_table = """
             | 10進数 | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 |
             |--------|---|---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|
@@ -119,3 +125,6 @@ st.markdown("""
 - 16進数: カラーコード、メモリアドレスなどで使用
 - n進数: 任意の基数での表現が可能
 """)
+
+# Copyright
+st.subheader('© 2022-2024 Dit-Lab.(Daiki Ito). All Rights Reserved.')
