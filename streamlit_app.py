@@ -30,20 +30,15 @@ else:
     
     st.subheader("位取り記数法の表")
     
-    headers = [f"${n_base}^{{{i}}}$" for i in range(max_power, -1, -1)]
-    values = [n_base ** i for i in range(max_power, -1, -1)]
-    digits_row = digits
-
+    # 数式をTeXで表示し、行と列を入れ替えた表を作成
     df = pd.DataFrame({
-        "指数": headers,
-        "値": values,
-        "桁": digits_row
-    })
+        f"${n_base}^{{{i}}}$": [n_base ** i, digits[max_power - i]] for i in range(max_power, -1, -1)
+    }, index=['値', '桁'])
     
     st.dataframe(df.style.format({"値": "{:,d}"}), use_container_width=True)
 
     st.subheader("計算式")
-    terms = [f"${n_base}^{{{max_power-i}}}$" for i, digit in enumerate(digits) if digit != 0]
+    terms = [f"{digits[i]} \\times {n_base}^{{{max_power-i}}}" for i in range(len(digits)) if digits[i] != 0]
     equation = f"{decimal_input} = {' + '.join(terms)}"
     st.latex(equation)
 
