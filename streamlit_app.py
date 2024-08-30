@@ -29,13 +29,24 @@ else:
     
     st.subheader("位取り記数法の表")
     
-    # st.tableを使用して表を作成（カラム名に数式を使用し、適切な行名を設定）
-    table_data = [
-        ["指数"] + [f"${n_base}^{{{i}}}$" for i in range(max_power, -1, -1)],
-        ["値"] + [n_base ** i for i in range(max_power, -1, -1)],
-        ["桁"] + digits
-    ]
-    st.table(table_data)
+    # カスタムHTMLを使用してテーブルを作成
+    html_table = f"""
+    <table style="width:100%; text-align:center;">
+        <tr>
+            <th></th>
+            {"".join([f"<th>${n_base}^{{{i}}}</th>" for i in range(max_power, -1, -1)])}
+        </tr>
+        <tr>
+            <td><strong>値</strong></td>
+            {"".join([f"<td>{n_base ** i}</td>" for i in range(max_power, -1, -1)])}
+        </tr>
+        <tr>
+            <td><strong>桁</strong></td>
+            {"".join([f"<td>{d}</td>" for d in digits])}
+        </tr>
+    </table>
+    """
+    st.markdown(html_table, unsafe_allow_html=True)
 
     st.subheader("計算式")
     terms = [f"{n_base}^{{{max_power-i}}} \\times {digits[i]}" for i in range(len(digits)) if digits[i] != 0]
