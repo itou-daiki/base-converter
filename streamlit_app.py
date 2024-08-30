@@ -5,7 +5,7 @@ st.set_page_config(page_title="進数変換アプリ", layout="wide")
 
 st.title("進数変換アプリ")
 
-decimal_input = st.number_input("10進数の数値を入力してください", min_value=0, value=44, step=1)
+decimal_input = st.number_input("10進数の数値を入力してください", min_value=0, value=62, step=1)
 base_options = ["2進数", "8進数", "16進数", "n進数"]
 selected_base = st.selectbox("変換する進数を選択してください", base_options)
 
@@ -26,6 +26,9 @@ def binary_to_hexadecimal(binary):
 def group_binary(binary, group_size):
     return ' '.join([binary[max(i-group_size, 0):i] for i in range(len(binary), 0, -group_size)][::-1])
 
+def binary_group_to_decimal(binary_group):
+    return str(int(binary_group, 2))
+
 if decimal_input == 0:
     st.write(f"{decimal_input}を{n_base}進数に変換すると: 0")
 else:
@@ -39,12 +42,15 @@ else:
         grouped_binary = group_binary(binary, group_size)
         st.write(f"2. 2進数を{group_size}桁ずつグループ化: {grouped_binary}")
         
+        decimal_groups = [binary_group_to_decimal(group) for group in grouped_binary.split()]
+        st.write(f"3. 各グループを10進数に変換: {' '.join(decimal_groups)}")
+        
         if selected_base == "8進数":
             result = binary_to_octal(binary)
-            st.write(f"3. 各グループを8進数に変換: {' '.join(result)}")
+            st.write(f"4. 10進数を8進数に変換: {' '.join(result)}")
         else:
             result = binary_to_hexadecimal(binary)
-            st.write(f"3. 各グループを16進数に変換: {' '.join(result)}")
+            st.write(f"4. 10進数を16進数に変換: {' '.join(result)}")
         
     else:  # 2進数またはn進数の場合
         digits = []
