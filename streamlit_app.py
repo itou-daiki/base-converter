@@ -29,11 +29,11 @@ else:
     
     st.subheader("位取り記数法の表")
     
-    # st.tableを使用して表を作成
+    # st.tableを使用して表を作成（カラム名に数式を使用し、適切な行名を設定）
     table_data = [
-        [f"${n_base}^{{{i}}}$" for i in range(max_power, -1, -1)],
-        [n_base ** i for i in range(max_power, -1, -1)],
-        digits
+        ["指数"] + [f"${n_base}^{{{i}}}$" for i in range(max_power, -1, -1)],
+        ["値"] + [n_base ** i for i in range(max_power, -1, -1)],
+        ["桁"] + digits
     ]
     st.table(table_data)
 
