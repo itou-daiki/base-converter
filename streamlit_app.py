@@ -1,6 +1,7 @@
 import streamlit as st
 import math
 import traceback
+import pandas as pd
 
 st.set_page_config(page_title="進数変換学習アプリ")
 
@@ -10,32 +11,37 @@ st.caption("Created by Dit-Lab.(Daiki Ito)")
 # Introduction
 st.markdown("""
 ## **概要**
-このウェブアプリケーションは、10進数からn進数の変換の学習を補助します。  
-表の描画、エラー処理、コピー機能を追加したサンプル実装です。
+このウェブアプリケーションは、10進数からn進数の変換の学習を補助します。
 """)
 
 decimal_input = st.number_input("10進数の数値を入力してください", min_value=0, value=62, step=1)
 base_options = ["2進数", "8進数", "16進数", "n進数"]
 selected_base = st.selectbox("変換する進数を選択してください", base_options)
 
+# n進数を選んだ場合に入力フォームを表示、それ以外(2,8,16)なら固定値をセット
 if selected_base == "n進数":
     n_base = st.number_input("nの値を入力してください", min_value=2, max_value=36, value=3, step=1)
 else:
     n_base = {"2進数": 2, "8進数": 8, "16進数": 16}[selected_base]
 
 def decimal_to_binary(decimal_num):
-    return bin(decimal_num)[2:]
+    return bin(decimal_num)[2:]  # '0b'を除く
 
 def binary_to_octal(binary):
-    return oct(int(binary, 2))[2:]
+    return oct(int(binary, 2))[2:]  # '0o'を除く
 
 def binary_to_hexadecimal(binary):
-    return hex(int(binary, 2))[2:].upper()
+    return hex(int(binary, 2))[2:].upper()  # '0x'を除き、大文字に
 
 def group_binary(binary_str, group_size):
-    """binary_strをgroup_size桁ごとに空白区切り文字列に変換"""
-    return ' '.join([binary_str[max(i - group_size, 0):i]
-                     for i in range(len(binary_str), 0, -group_size)][::-1])
+    """
+    binary_strをgroup_size桁ごとに空白区切り文字列に変換
+    例: group_binary("111110", 3) -> "111 110"
+    """
+    return ' '.join([
+        binary_str[max(i - group_size, 0):i]
+        for i in range(len(binary_str), 0, -group_size)
+    ][::-1])
 
 def binary_group_to_decimal(binary_group):
     """2進数の塊(binary_group)を10進数に変換して文字列で返す"""
@@ -44,18 +50,18 @@ def binary_group_to_decimal(binary_group):
 try:
     # 変換処理
     if decimal_input == 0:
-        # 0の場合は変換結果も「0」になる
         st.write(f"{decimal_input}を{n_base}進数に変換すると: 0")
         result = "0"
     else:
-        # まず2進数に変換
+        # まず 10進数→2進数
         binary = decimal_to_binary(decimal_input)
 
+        # 8進数 または 16進数 の場合
         if selected_base in ["8進数", "16進数"]:
             st.subheader("変換過程")
             st.write(f"1. 10進数を2進数に変換: {decimal_input} → {binary}")
 
-            # 8進数(3bit区切り) or 16進数(4bit区切り)
+            # 8進数は3ビット区切り, 16進数は4ビット区切り
             group_size = 3 if selected_base == "8進数" else 4
             grouped_binary = group_binary(binary, group_size)
             st.write(f"2. 2進数を{group_size}桁ずつグループ化: {grouped_binary}")
@@ -79,35 +85,44 @@ try:
 | 16進数 | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | A  | B  | C  | D  | E  | F  |
 """
                 st.markdown(hex_table)
+
         else:
-            # 2進数 or n進数(2~36)
+            # 2進数 または n進数 の場合
             digits = []
             temp = decimal_input
             while temp > 0:
                 digits.append(temp % n_base)
                 temp //= n_base
-            digits.reverse()  # 上位桁が先頭になるように反転
+            digits.reverse()  # 上位桁を先頭に
 
             max_power = len(digits) - 1
 
             st.subheader("位取り記数法の表")
-            # ここでインデントを減らしてMarkdown表が正しく描画されるようにする
-            # 行頭に余計なスペースを入れずに記述
-            markdown_table = f"""|      | {' | '.join([f"$${n_base}^{{{i}}}$$" for i in range(max_power, -1, -1)])} |
-|------|{'|---' * (max_power + 1)}|
-| 値   | {' | '.join(str(n_base ** i) for i in range(max_power, -1, -1))} |
-| 桁   | {' | '.join(str(d) for d in digits)} |
-"""
-            st.markdown(markdown_table)
 
+            # -------------------------------
+            # ここからPandasによるテーブル表示
+            # -------------------------------
+            columns = [f"{n_base}^{i}" for i in range(max_power, -1, -1)]
+            values_str = [str(n_base**i) for i in range(max_power, -1, -1)]
+            digits_str = [str(d) for d in digits]
+
+            df = pd.DataFrame(
+                [values_str, digits_str],  # 2行(上:値, 下:桁)
+                index=["値", "桁"],
+                columns=columns
+            )
+            st.table(df)
+
+            # 計算式
             st.subheader("計算式")
-            # 桁が0でないところだけを項にする
-            terms = [f"{n_base}^{{{max_power - i}}} \\times {digits[i]}" 
-                     for i in range(len(digits)) if digits[i] != 0]
+            terms = [
+                f"{n_base}^{{{max_power - i}}} \\times {digits[i]}"
+                for i in range(len(digits)) if digits[i] != 0
+            ]
             equation = f"$${decimal_input} = {' + '.join(terms)}$$"
             st.markdown(equation)
 
-            # nが10を超える場合(11～36進)はアルファベットを使う
+            # n_baseが10を超える場合(11～36進)はアルファベットを使う
             if n_base <= 10:
                 result = "".join(map(str, digits))
             else:
@@ -126,31 +141,23 @@ try:
 """
     st.markdown(centered_result, unsafe_allow_html=True)
 
-    # コピー用ボタンを追加
-    if st.button("結果をコピー"):
-        # Streamlitには直接クリップボード機能はないので、ユーザがコピーしやすいようにテキスト表示
-        st.write("以下を手動でコピーしてください:")
-        st.code(result)
-
 except Exception as e:
     st.warning("基数変換に失敗しました。入力値やnの値を確認してください。")
-    # デバッグ用に詳細を表示したい場合は以下のコメントアウトを外してください
+    # デバッグ用のトレースを見たい場合は以下をアンコメント
     # st.error(traceback.format_exc())
 
 st.markdown("""
----
 ## 使い方
 1. 10進数の数値を入力します。  
 2. 変換したい進数を選択します。  
 3. 「n進数」を選んだ場合は、nの値を入力します。  
-4. 結果、位取り記数法の表、計算式、コピー用ボタンが自動的に表示されます。
+4. 結果、位取り記数法の表・計算式が自動表示されます。
 
 ## 進数について
 - 2進数: コンピューターの基本的な数体系
 - 8進数: UNIXのファイル権限などで使用
 - 16進数: カラーコード、メモリアドレスなどで使用
 - n進数: 任意の基数での表現が可能
----
 """)
 
 # Copyright
